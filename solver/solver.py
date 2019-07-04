@@ -78,8 +78,8 @@ class Solver:
             V[:,0] = r0 / r0Norm
 
             # beta * e1, in reduced dim
-            b = np.zeros(m+1)
-            b[0] = r0Norm
+            beta = np.zeros(m+1)
+            beta[0] = r0Norm
 
             # Counter for the outer loop
             self.itersCounter += 1
@@ -95,42 +95,51 @@ class Solver:
                 #r = b - A.dot(x0)
 
                 # Orthogonalization procedure
-                for j in range(k+1):
-                    h[j,k] = np.dot(V[:,j], w)
+                for j in range(k):
+                    h[j,k] = np.dot(w,V[:,j])
                     w -= h[j,k] * V[:,j]
                 h[k+1,k] = np.linalg.norm(w)
+                print(np.linalg.norm(w))
 
                 # If we haven't reached the last iteration
-                if k<(m-1): V[:,(k+1)] = w / h[k+1,k]
+                #if k<(m-1): V[:,(k+1)] = w / h[k+1,k]
 
                 # If lucky break
                 if h[k+1,k]==0:
+                    print('lucky break')
                     luckyBreak=1
                     break
                 else:
-                    partialResult = np.linalg.lstsq(h, b)[0]
-                    partialResult = np.dot(V[:,:k].transpose(), partialResult)
+                    partialResult = np.linalg.lstsq(h[:(k+2),:(k+1)], beta[:(k+2)])[0]
+                    print(['y.shape =',partialResult.shape])
+                    partialResult = np.dot(V[:,:(k+1)], partialResult)
+                    print(['partialResult].shape = ',partialResult.shape])
                     x = x0 + partialResult
-
+                    
                     r = b - A.dot(x)
-                    eps = np.linalg.norm(x) / r0Norm
-                    residuals.append(eps)
+                    relNormOfRes = np.linalg.norm(r) / r0Norm
+                    print(['relNormOfRes = ',relNormOfRes])
+                    print('\n')
+                    residuals.append(relNormOfRes)
 
-                    if eps < tol:
+                    if relNormOfRes < tol:
+                        print('tol reached')
                         tolReached = 1
                         break
 
             if luckyBreak==1:
 
-                partialResult = np.linalg.lstsq(h, b)[0]
-                partialResult = np.dot(V[:,:k].transpose(), partialResult)
+                partialResult = np.linalg.lstsq(h[:(k+2),:(k+1)], beta[:(k+2)])[0]
+                partialResult = np.dot(V[:,:(k+1)], partialResult)
                 x = x0 + partialResult
 
                 r = b - A.dot(x)
-                eps = np.linalg.norm(r) / r0Norm
-                residuals.append(eps)
+                relNormOfRes = np.linalg.norm(r) / r0Norm
+                print(['relNormOfRes 2 = ', relNormOfRes])
+                print('\n')
+                residuals.append(relNormOfRes)
 
-                if eps < tol:
+                if relNormOfRes < tol:
                     tolReached = 1
                     break
 
@@ -139,6 +148,7 @@ class Solver:
 
             # If tolerance hasn't been reached, then set x0 and re-start
             x0 = np.copy(x)
+            break
 
             # FIXME
             matMuls.append(1)

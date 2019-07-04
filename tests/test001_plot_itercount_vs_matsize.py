@@ -20,12 +20,15 @@ from plotter import plotter
 
 def plot_itercount_vs_matsize():
 
-    inverters = ["GMRES", "FGMRES"]
+	# TO DO: full loop of inverters
+    #inverters = ["GMRES", "FGMRES"]
+    inverters = ["GMRES"]
     #matrices = ["laplace", "laplace_2"]
 
     # Sizes for each matrix type
     matrices = dict()
-    matrices['cz'] = [148, 308, 628, 1268, 2548, 5108]
+    #matrices['cz'] = [148, 308, 628, 1268, 2548, 5108]
+    matrices['cz'] = [148]
 
     # Solver object - can be used for any matrix
     sol_params = dict()
