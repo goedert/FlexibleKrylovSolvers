@@ -50,6 +50,10 @@ class Matrix:
         return M
 
 
+    def dot(self, v):
+        return self.mat.dot(v)
+
+
     def getDims(self):
         return self.mat.shape
 

@@ -33,28 +33,36 @@ def plot_itercount_vs_matsize():
 
     for inv in inverters:
 
-      for mat_label in matrices:
+        for mat_label in matrices:
 
-          it_counts = list()
-          matsizes = list()
+            it_counts = list()
+            matsizes = list()
 
-          for mat_size in matrices[mat_label]:
+            for mat_size in matrices[mat_label]:
 
-              # Construct the matrix
-              mat_params = dict()
-              mat_params['fromSuiteSparse'] = True
-              mat_params['whichMatrix'] = mat_label
-              mat_params['dims'] = [mat_size,mat_size]
-              M = Matrix(mat_params)
+                # Construct the matrix
+                mat_params = dict()
+                mat_params['fromSuiteSparse'] = True
+                mat_params['whichMatrix'] = mat_label
+                mat_params['dims'] = [mat_size,mat_size]
+                M = Matrix(mat_params)
 
-              # Build a rhs for this matrix
-              #b = np.
-              matDims = M.getDims()
-              b = np.ones(matDims[0])
+                # Build a rhs for this matrix
+                #b = np.
+                matDims = M.getDims()
+                b = np.ones(matDims[0])
 
-              x,residuals,it_count,nr_matvec_muls = sol.solve(inv, M, b)
-              it_counts.append(it_count)
-              matsizes.append(mat_size)
+                # Tolerance for the solve
+                tol = 1e-10
 
-          filename = 'test001_' + inv + '_' + mat_label + '.png'
-          plotter(it_counts, matsizes, "matrix size", "iteration count", filename)
+                extraParams = dict()
+
+                if inv=="GMRES":
+                     extraParams['restartLength'] = 5
+
+                x,residuals,it_count,nr_matvec_muls = sol.solve(inv, M, b, tol, extraParams)
+                it_counts.append(it_count)
+                matsizes.append(mat_size)
+
+            filename = 'test001_' + inv + '_' + mat_label + '.png'
+            plotter(it_counts, matsizes, "matrix size", "iteration count", filename)

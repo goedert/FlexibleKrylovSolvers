@@ -50,7 +50,12 @@ def plot_resid_vs_matmuls():
 
         for inv in inverters:
 
-            x,residuals,it_count,nr_matvec_muls = sol.solve(inv, M, b)
+            # Tolerance for the solve
+            tol = 1e-10
+
+            extraParams = dict()
+
+            x,residuals,it_count,nr_matvec_muls = sol.solve(inv, M, b, tol, extraParams)
 
             filename = 'test002_' + inv + '_' + mat_label + '_' + str(mat_size) + '.png'
             plotter(residuals, nr_matvec_muls, "nr mat vec multipls", "residual", filename)
